@@ -4,7 +4,7 @@
   Plugin Name: CleanTalk register widget
   Plugin URI: https://cleantalk.org
   Description: The widget adds the ability to place the register form to the website sidebars.
-  Version: 1.0.0
+  Version: 1.1.0
   Author: СleanTalk <welcome@cleantalk.org>
   Author URI: https://cleantalk.org
   Text Domain: cleantalk_register_widget
@@ -47,17 +47,17 @@ class CleantalkRegisterWidget extends WP_Widget
         $register_form = file_get_contents(__DIR__ . '/view/RegisterForm.php');
         $replaces = array(
             '{{TITLE}}' => apply_filters('widget_title', $instance['title']),
-            '{{HINT}}' => esc_html__('A password will be emailed to you', 'cleantalk_register_widget'),
             '{{PUBLIC_OFFER}}' => sprintf(
-                esc_html__('By signing up, you agree with %s license %s', 'cleantalk_register_widget'),
-                '<a href="https://cleantalk.org/publicoffer" target="_blank" class="light_text">',
+                esc_html__('By signing up, you agree with %s license%s.', 'cleantalk_register_widget'),
+                '<a href="https://cleantalk.org/publicoffer" target="_blank">',
                 '</a>'
             ),
             '{{LOGIN_LINK}}' => sprintf(
-                esc_html__('Have an account? %sLog in%s', 'cleantalk_register_widget'),
-                '<a href="https://cleantalk.org/my" class="grey_hint">',
+                esc_html__('Have an account? %s Log in%s.', 'cleantalk_register_widget'),
+                '<a href="https://cleantalk.org/my">',
                 '</a>'
             ),
+            '{{SUBMIT_BUTTON_TEXT}}' => esc_html__('Start your 7-day free trial', 'cleantalk_register_widget'),
         );
 
         echo str_replace(array_keys($replaces), array_values($replaces), $register_form);
