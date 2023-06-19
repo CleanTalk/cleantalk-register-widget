@@ -6,7 +6,7 @@
         const data = $(e.target).serialize();
         $.ajax({
             type: 'POST',
-            url: 'https://api.cleantalk.org?lead_source=blog_widget',
+            url: 'https://api.cleantalk.org',
             data: data,
             success: () => { sendFormSuccess() },
             error: () => { sendFormError() }
