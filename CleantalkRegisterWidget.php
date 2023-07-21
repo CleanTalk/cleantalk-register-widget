@@ -4,12 +4,17 @@
   Plugin Name: CleanTalk register widget
   Plugin URI: https://cleantalk.org
   Description: The widget adds the ability to place the register form to the website sidebars.
-  Version: 1.2.0
+  Version: 1.3.0
   Author: СleanTalk <welcome@cleantalk.org>
   Author URI: https://cleantalk.org
   Text Domain: cleantalk_register_widget
   Domain Path: /i18n
 */
+
+// If this file is called directly, abort.
+if ( !defined('WPINC') ) {
+    die;
+}
 
 class CleantalkRegisterWidget extends WP_Widget
 {
@@ -21,6 +26,9 @@ class CleantalkRegisterWidget extends WP_Widget
                 plugins_url('assets/js', __FILE__) . '/frontend.js',
                 ['jquery']
             );
+            wp_localize_script('ct_reg_widget_js', 'ctRegWidgetOptions', array(
+                'ajaxUrl'   => admin_url('admin-ajax.php'),
+            ));
             wp_enqueue_style(
                 'ct_reg_widget_css',
                 plugins_url('assets/css', __FILE__) . '/styles.css'
@@ -44,15 +52,19 @@ class CleantalkRegisterWidget extends WP_Widget
     // Вывод виджета в области виджетов на сайте.
     public function widget($args, $instance)
     {
+        global $wp;
+
         $register_form = file_get_contents(__DIR__ . '/view/RegisterForm.php');
         $replaces = array(
-            '{{TITLE}}' => apply_filters('widget_title', $instance['title']),
+            '{{CURRENT_URL}}'  => home_url($wp->request),
+            '{{NONCE}}'        => wp_create_nonce('cleantalk_register_widget'),
+            '{{TITLE}}'        => apply_filters('widget_title', $instance['title']),
             '{{PUBLIC_OFFER}}' => sprintf(
                 esc_html__('By signing up, you agree with %s license%s.', 'cleantalk_register_widget'),
                 '<a href="https://cleantalk.org/publicoffer" target="_blank">',
                 '</a>'
             ),
-            '{{LOGIN_LINK}}' => sprintf(
+            '{{LOGIN_LINK}}'   => sprintf(
                 esc_html__('Have an account? %s Log in%s.', 'cleantalk_register_widget'),
                 '<a href="https://cleantalk.org/my">',
                 '</a>'
@@ -103,5 +115,39 @@ function cleantalk_register_widget()
 {
     register_widget('CleantalkRegisterWidget');
 }
-
 add_action('widgets_init', 'cleantalk_register_widget');
+
+/**
+ * Ajax handler to get key
+ * @return void
+ */
+function cleantalk_register_widget__get_api_key()
+{
+    check_ajax_referer('cleantalk_register_widget');
+
+    $url = 'https://api.cleantalk.org';
+    $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
+    $website = isset($_POST['website']) ? sanitize_url($_POST['website']) : '';
+    $server_response = wp_remote_post(
+            $url,
+            [
+                'body' =>[
+                    'method_name' => 'get_api_key',
+                    'product_name' => 'antispam',
+                    'email' => $email,
+                    'website' => $website,
+                    'lead_source' => 'blog_widget',
+                ],
+            ]
+    );
+
+    $message = 'unknown response';
+    if ( isset($server_response['response']['message']) ) {
+        $message = $server_response['response']['message'];
+    }
+
+    wp_send_json_success($message);
+
+}
+add_action('wp_ajax_nopriv_cleantalk_register_widget__get_api_key', 'cleantalk_register_widget__get_api_key');
+add_action('wp_ajax_cleantalk_register_widget__get_api_key', 'cleantalk_register_widget__get_api_key');

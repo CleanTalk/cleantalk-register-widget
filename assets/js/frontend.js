@@ -1,22 +1,24 @@
-(function($) {
+(function($, options) {
 
     const sendForm = (e) => {
         e.preventDefault();
         $('#submit_btn').attr('disabled', 'disabled');
-        const data = $(e.target).serialize();
+        $('#help_hint').hide().text('').removeClass('success').removeClass('error');
+        let data = $(e.target).serialize();
         $.ajax({
             type: 'POST',
-            url: 'https://api.cleantalk.org',
+            url: options.ajaxUrl,
             data: data,
-            success: () => { sendFormSuccess() },
+            success: (data) => { sendFormSuccess(data) },
             error: () => { sendFormError() }
         });
     }
 
-    const sendFormSuccess = () => {
+    const sendFormSuccess = (data) => {
+        const answerClass = data.success ? 'success' : 'error';
         let answerBlock = $('#help_hint');
-        answerBlock.addClass('success');
-        answerBlock.text('Success!');
+        answerBlock.addClass(answerClass);
+        answerBlock.text(data.data);
         answerBlock.show();
         $('#submit_btn').removeAttr('disabled');
     }
@@ -35,4 +37,4 @@
 
     $(document).ready(addListeners);
 
-})(jQuery);
+})(jQuery, ctRegWidgetOptions);

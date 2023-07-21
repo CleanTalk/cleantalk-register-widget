@@ -3,9 +3,9 @@
         <div id="help_hint" class="notice_hint"></div>
     </div>
     <form method="post" id="reg">
-        <input type="hidden" name="method_name" value="get_api_key">
-        <input type="hidden" name="product_name" value="antispam">
-        <input type="hidden" name="lead_source" value="blog_widget">
+        <input type="hidden" name="action" value="cleantalk_register_widget__get_api_key">
+        <input type="hidden" name="current_url" value="{{CURRENT_URL}}">
+        <input type="hidden" name="_ajax_nonce" value="{{NONCE}}">
         <div class="text-center">
             <div class="flexbox">
                 <h2 class="cleantalk-register-widget-title">{{TITLE}}</h2>
