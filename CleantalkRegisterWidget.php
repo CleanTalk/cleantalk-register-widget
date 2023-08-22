@@ -141,12 +141,16 @@ function cleantalk_register_widget__get_api_key()
             ]
     );
 
-    $message = 'unknown response';
-    if ( isset($server_response['response']['message']) ) {
-        $message = $server_response['response']['message'];
+    if ( isset($server_response['body']) ) {
+        $message = json_decode($server_response['body'], ARRAY_A);
+        if ( isset($message['error_message']) ) {
+            wp_send_json_error($message['error_message']);
+        } else {
+            wp_send_json_success('OK');
+        }
     }
 
-    wp_send_json_success($message);
+    wp_send_json_error('unknown response');
 
 }
 add_action('wp_ajax_nopriv_cleantalk_register_widget__get_api_key', 'cleantalk_register_widget__get_api_key');
