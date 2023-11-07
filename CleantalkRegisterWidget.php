@@ -179,7 +179,7 @@ function cleantalk_register_widget__get_api_key()
         if ( isset($message['error_message']) ) {
             wp_send_json_error($message['error_message']);
         } else {
-            wp_send_json_success('OK');
+            wp_send_json_success(esc_html('Thank you for registering! Check your email to access the Dashboard.', 'cleantalk_register_widget'));
         }
     }
 
