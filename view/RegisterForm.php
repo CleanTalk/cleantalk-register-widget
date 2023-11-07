@@ -1,4 +1,4 @@
-<div class="cleantalk_register_widget">
+<div class="cleantalk_register_widget" {{WIDTH}}>
     <div class="text-center">
         <div id="help_hint" class="notice_hint"></div>
     </div>

@@ -4,7 +4,7 @@
   Plugin Name: CleanTalk register widget
   Plugin URI: https://cleantalk.org
   Description: The widget adds the ability to place the register form to the website sidebars.
-  Version: 1.3.1
+  Version: 1.4.0
   Author: СleanTalk <welcome@cleantalk.org>
   Author URI: https://cleantalk.org
   Text Domain: cleantalk_register_widget
@@ -56,6 +56,7 @@ class CleantalkRegisterWidget extends WP_Widget
 
         $register_form = file_get_contents(__DIR__ . '/view/RegisterForm.php');
         $replaces = array(
+            '{{WIDTH}}'        => '',
             '{{CURRENT_URL}}'  => home_url($wp->request),
             '{{NONCE}}'        => wp_create_nonce('cleantalk_register_widget'),
             '{{TITLE}}'        => apply_filters('widget_title', $instance['title']),
@@ -116,6 +117,38 @@ function cleantalk_register_widget()
     register_widget('CleantalkRegisterWidget');
 }
 add_action('widgets_init', 'cleantalk_register_widget');
+
+/**
+ * Register the shortcode
+ * @param $atts
+ *
+ * @return string
+ */
+function CleantalkRegisterFormShortcodeHandler($atts){
+    global $wp;
+
+    $register_form = file_get_contents(__DIR__ . '/view/RegisterForm.php');
+    $replaces = array(
+        '{{WIDTH}}'        => isset($atts['width']) ? 'style="width:' . esc_attr($atts['width']) . '"' : '',
+        '{{CURRENT_URL}}'  => home_url($wp->request),
+        '{{NONCE}}'        => wp_create_nonce('cleantalk_register_widget'),
+        '{{TITLE}}'        => isset($atts['title']) ? esc_html($atts['title']) : '',
+        '{{PUBLIC_OFFER}}' => sprintf(
+            esc_html__('By signing up, you agree with %s license%s.', 'cleantalk_register_widget'),
+            '<a href="https://cleantalk.org/publicoffer" target="_blank">',
+            '</a>'
+        ),
+        '{{LOGIN_LINK}}'   => sprintf(
+            esc_html__('Have an account? %s Log in%s.', 'cleantalk_register_widget'),
+            '<a href="https://cleantalk.org/my">',
+            '</a>'
+        ),
+        '{{SUBMIT_BUTTON_TEXT}}' => esc_html__('Start your 7-day free trial', 'cleantalk_register_widget'),
+    );
+
+    return str_replace(array_keys($replaces), array_values($replaces), $register_form);
+}
+add_shortcode('CleantalkRegisterFormShortcode', 'CleantalkRegisterFormShortcodeHandler');
 
 /**
  * Ajax handler to get key
