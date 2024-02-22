@@ -60,6 +60,7 @@ class CleantalkRegisterWidget extends WP_Widget
             '{{CURRENT_URL}}'  => home_url($wp->request),
             '{{NONCE}}'        => wp_create_nonce('cleantalk_register_widget'),
             '{{TITLE}}'        => apply_filters('widget_title', $instance['title']),
+            '{{SUBTITLE}}'     => isset($instance['subtitle']) ? '<br>' . esc_html($instance['subtitle']) : '',
             '{{PUBLIC_OFFER}}' => sprintf(
                 esc_html__('By signing up, you agree with %s license%s.', 'cleantalk_register_widget'),
                 '<a href="https://cleantalk.org/publicoffer" target="_blank">',
@@ -79,14 +80,23 @@ class CleantalkRegisterWidget extends WP_Widget
 
     public function form($instance)
     {
-        $title = ! empty($instance['title']) ? $instance['title'] : ''; ?>
+        $title = ! empty($instance['title']) ? $instance['title'] : '';
+        $subtitle = ! empty($instance['subtitle']) ? $instance['subtitle'] : ''; ?>
         <p>
-        <label for="<?php
-        echo $this->get_field_id('title'); ?>">Title:</label>
-        <input type="text" id="<?php
-        echo $this->get_field_id('title'); ?>" name="<?php
-        echo $this->get_field_name('title'); ?>" value="<?php
-        echo esc_attr($title); ?>"/>
+        <label for="<?php echo $this->get_field_id('title'); ?>">Title:</label>
+        <input
+                type="text"
+                id="<?php echo $this->get_field_id('title'); ?>"
+                name="<?php echo $this->get_field_name('title'); ?>"
+                value="<?php echo esc_attr($title); ?>"
+        />
+        <label for="<?php echo $this->get_field_id('subtitle'); ?>">Subtitle:</label>
+        <input
+                type="text"
+                id="<?php echo $this->get_field_id('subtitle'); ?>"
+                name="<?php echo $this->get_field_name('subtitle'); ?>"
+                value="<?php echo esc_attr($subtitle); ?>"
+        />
         </p><?php
     }
 
@@ -104,6 +114,9 @@ class CleantalkRegisterWidget extends WP_Widget
         $instance['title'] = ! empty($new_instance['title'])
             ? strip_tags($new_instance['title'])
             : esc_html__('Create your CleanTalk account', 'cleantalk_register_widget');
+        $instance['subtitle'] = ! empty($new_instance['subtitle'])
+            ? strip_tags($new_instance['subtitle'])
+            : '';
         return $instance;
     }
 }
@@ -133,6 +146,7 @@ function CleantalkRegisterFormShortcodeHandler($atts){
         '{{CURRENT_URL}}'  => home_url($wp->request),
         '{{NONCE}}'        => wp_create_nonce('cleantalk_register_widget'),
         '{{TITLE}}'        => isset($atts['title']) ? esc_html($atts['title']) : '',
+        '{{SUBTITLE}}'     => isset($atts['subtitle']) ? '<br>' . esc_html($atts['subtitle']) : '',
         '{{PUBLIC_OFFER}}' => sprintf(
             esc_html__('By signing up, you agree with %s license%s.', 'cleantalk_register_widget'),
             '<a href="https://cleantalk.org/publicoffer" target="_blank">',
