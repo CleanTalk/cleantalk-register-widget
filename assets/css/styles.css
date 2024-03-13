@@ -6,6 +6,11 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    flex-direction: column;
+}
+.cleantalk_register_widget .flexbox h2:has(+ p) {
+    padding-bottom: 0;
+    margin-bottom: 0;
 }
 .cleantalk_register_widget .text-center {
     text-align: center;

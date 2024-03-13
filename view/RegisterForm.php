@@ -8,7 +8,8 @@
         <input type="hidden" name="_ajax_nonce" value="{{NONCE}}">
         <div class="text-center">
             <div class="flexbox">
-                <h2 class="cleantalk-register-widget-title">{{TITLE}}{{SUBTITLE}}</h2>
+                <h2 class="cleantalk-register-widget-title">{{TITLE}}</h2>
+                <p>{{SUBTITLE}}</p>
             </div>
             <div class="text-center">
                 <label for="email"></label>
