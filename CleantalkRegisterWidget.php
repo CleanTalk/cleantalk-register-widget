@@ -4,7 +4,7 @@
   Plugin Name: CleanTalk register widget
   Plugin URI: https://cleantalk.org
   Description: The widget adds the ability to place the register form to the website sidebars.
-  Version: 1.4.0
+  Version: 1.5.0
   Author: СleanTalk <welcome@cleantalk.org>
   Author URI: https://cleantalk.org
   Text Domain: cleantalk_register_widget
