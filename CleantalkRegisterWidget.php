@@ -18,6 +18,12 @@ if ( !defined('WPINC') ) {
 
 class CleantalkRegisterWidget extends WP_Widget
 {
+    static $defaults = array(
+            'title' => 'Create your CleanTalk account',
+            'source' => '',
+            'product_name' => 'antispam',
+            'subtitle' => '',
+    );
     public function __construct()
     {
         if ( ! is_admin() ) {
@@ -57,10 +63,17 @@ class CleantalkRegisterWidget extends WP_Widget
         $register_form = file_get_contents(__DIR__ . '/view/RegisterForm.php');
         $replaces = array(
             '{{WIDTH}}'        => '',
+            '{{PRODUCT}}'        => isset($instance['product_name']) ? esc_html($instance['product_name']) : static::$defaults['product_name'],
+            '{{SOURCE}}'        => isset($instance['source']) ? esc_html($instance['source']) : static::$defaults['source'],
             '{{CURRENT_URL}}'  => home_url($wp->request),
             '{{NONCE}}'        => wp_create_nonce('cleantalk_register_widget'),
-            '{{TITLE}}'        => apply_filters('widget_title', $instance['title']),
-            '{{SUBTITLE}}'     => isset($instance['subtitle']) ? esc_html($instance['subtitle']) : '',
+            '{{TITLE}}'        => apply_filters(
+                    'widget_title',
+                    isset($instance['title'])
+                        ? $instance['title']
+                        : static::$defaults['title']
+            ),
+            '{{SUBTITLE}}'     => isset($instance['subtitle']) ? esc_html($instance['subtitle']) : static::$defaults['subtitle'],
             '{{PUBLIC_OFFER}}' => sprintf(
                 esc_html__('By signing up, you agree with %s license%s.', 'cleantalk_register_widget'),
                 '<a href="https://cleantalk.org/publicoffer" target="_blank">',
@@ -80,8 +93,10 @@ class CleantalkRegisterWidget extends WP_Widget
 
     public function form($instance)
     {
-        $title = ! empty($instance['title']) ? $instance['title'] : '';
-        $subtitle = ! empty($instance['subtitle']) ? $instance['subtitle'] : ''; ?>
+        $title = ! empty($instance['title']) ? $instance['title'] : static::$defaults['title'];
+        $subtitle = ! empty($instance['subtitle']) ? $instance['subtitle'] : static::$defaults['subtitle'];
+        $product_name = ! empty($instance['product_name']) ? $instance['product_name'] : static::$defaults['product_name'];
+	    $source = ! empty($instance['source']) ? $instance['source'] : static::$defaults['source']; ?>
         <p>
         <label for="<?php echo $this->get_field_id('title'); ?>">Title:</label>
         <input
@@ -97,6 +112,22 @@ class CleantalkRegisterWidget extends WP_Widget
                 name="<?php echo $this->get_field_name('subtitle'); ?>"
                 value="<?php echo esc_attr($subtitle); ?>"
         />
+        <label for="<?php echo $this->get_field_id('source'); ?>">Registration source</label>
+        <input
+                type="text"
+                id="<?php echo $this->get_field_id('source'); ?>"
+                name="<?php echo $this->get_field_name('source'); ?>"
+                value="<?php echo esc_attr($source); ?>"
+        />
+        <label for="<?php echo $this->get_field_id('product_name'); ?>">Product name:</label>
+        <select
+                id="<?php echo $this->get_field_id('product_name'); ?>"
+                name="<?php echo $this->get_field_name('product_name'); ?>"
+                value="<?php echo esc_attr($product_name); ?>"
+        >
+            <option value="security">Security</option>
+            <option value="antispam">Anti-Spam</option>
+        </select>
         </p><?php
     }
 
@@ -113,10 +144,16 @@ class CleantalkRegisterWidget extends WP_Widget
         $instance          = [];
         $instance['title'] = ! empty($new_instance['title'])
             ? strip_tags($new_instance['title'])
-            : esc_html__('Create your CleanTalk account', 'cleantalk_register_widget');
+            : esc_html__(static::$defaults['title']);
         $instance['subtitle'] = ! empty($new_instance['subtitle'])
             ? strip_tags($new_instance['subtitle'])
-            : '';
+            : static::$defaults['subtitle'];
+        $instance['product_name'] = ! empty($new_instance['product_name'])
+            ? strip_tags($new_instance['product_name'])
+            : static::$defaults['product_name'];
+	    $instance['source'] = ! empty($new_instance['source'])
+		    ? strip_tags($new_instance['source'])
+		    : static::$defaults['source'];
         return $instance;
     }
 }
@@ -147,6 +184,8 @@ function CleantalkRegisterFormShortcodeHandler($atts){
         '{{NONCE}}'        => wp_create_nonce('cleantalk_register_widget'),
         '{{TITLE}}'        => isset($atts['title']) ? esc_html($atts['title']) : '',
         '{{SUBTITLE}}'     => isset($atts['subtitle']) ? esc_html($atts['subtitle']) : '',
+        '{{PRODUCT}}'     => isset($atts['product_name']) ? esc_html($atts['product_name']) : '',
+        '{{SOURCE}}'     => isset($atts['source']) ? esc_html($atts['source']) : '',
         '{{PUBLIC_OFFER}}' => sprintf(
             esc_html__('By signing up, you agree with %s license%s.', 'cleantalk_register_widget'),
             '<a href="https://cleantalk.org/publicoffer" target="_blank">',
@@ -175,17 +214,20 @@ function cleantalk_register_widget__get_api_key()
     $url = 'https://api.cleantalk.org';
     $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
     $website = isset($_POST['website']) ? sanitize_url($_POST['website']) : '';
+    $product_name = isset($_POST['product_name']) ? esc_html($_POST['product_name']) : '';
+    $source = isset($_POST['source']) ? esc_html($_POST['source']) : '';
+    $prepared_post = array(
+        'body' => [
+            'method_name' => 'get_api_key',
+            'product_name' => $product_name,
+            'email' => $email,
+            'website' => $website,
+            'lead_source' => $source,
+        ],
+    );
+
     $server_response = wp_remote_post(
-            $url,
-            [
-                'body' =>[
-                    'method_name' => 'get_api_key',
-                    'product_name' => 'antispam',
-                    'email' => $email,
-                    'website' => $website,
-                    'lead_source' => 'blog_widget',
-                ],
-            ]
+	    $url, $prepared_post
     );
 
     if ( isset($server_response['body']) ) {

@@ -6,6 +6,8 @@
         <input type="hidden" name="action" value="cleantalk_register_widget__get_api_key">
         <input type="hidden" name="current_url" value="{{CURRENT_URL}}">
         <input type="hidden" name="_ajax_nonce" value="{{NONCE}}">
+        <input type="hidden" name="product_name" value="{{PRODUCT}}">
+        <input type="hidden" name="source" value="{{SOURCE}}">
         <div class="text-center">
             <div class="flexbox">
                 <h2 class="cleantalk-register-widget-title">{{TITLE}}</h2>
